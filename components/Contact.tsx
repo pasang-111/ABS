@@ -3,7 +3,11 @@
 import { useState, FormEvent } from "react";
 
 export default function Contact() {
-  const [status, setStatus] = useState<"idle" | "sending" | "ok" | "error">("idle");
+  const [status, setStatus] = useState<"idle" | "sending" | "ok" | "error">(
+    "idle"
+  );
+  const [errorMsg, setErrorMsg] = useState("");
+  const [submittedName, setSubmittedName] = useState("");
 
   async function handleSubmit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -11,18 +15,46 @@ export default function Contact() {
     const data = new FormData(form);
     const name = String(data.get("name") || "").trim();
     const email = String(data.get("email") || "").trim();
+    const phone = String(data.get("phone") || "").trim();
+    const service = String(data.get("service") || "").trim();
+    const suburb = String(data.get("suburb") || "").trim();
     const message = String(data.get("message") || "").trim();
 
     if (!name || !email || !message) {
+      setErrorMsg("Please fill in your name, email and project details.");
       setStatus("error");
       return;
     }
 
     setStatus("sending");
-    // Simulate network — replace with real endpoint / Formspree / etc.
-    await new Promise((r) => setTimeout(r, 1100));
-    setStatus("ok");
-    form.reset();
+    setErrorMsg("");
+
+    try {
+      const res = await fetch("/api/contact", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name, email, phone, service, suburb, message }),
+      });
+
+      const body = await res.json().catch(() => ({}));
+
+      if (!res.ok) {
+        throw new Error(
+          body.error || "Something went wrong. Please try again."
+        );
+      }
+
+      setSubmittedName(name);
+      setStatus("ok");
+      form.reset();
+    } catch (err) {
+      setErrorMsg(
+        err instanceof Error
+          ? err.message
+          : "Failed to send. Please try again or call 0413 230 730."
+      );
+      setStatus("error");
+    }
   }
 
   return (
@@ -40,65 +72,123 @@ export default function Contact() {
               Request your free quote
             </h2>
             <p className="text-[16px] text-[var(--color-muted)] leading-relaxed mb-10 max-w-md">
-              Tell us about the garage, alfresco, wardrobe or outdoor area. We&apos;ll measure,
-              design and send a clear quote — no obligation.
+              Tell us about the garage, alfresco, wardrobe or outdoor area.
+              We&apos;ll measure, design and send a clear quote — no
+              obligation.
             </p>
 
             <div className="space-y-5">
-              <a href="tel:+61413230730" className="flex items-center gap-4 group">
+              <a
+                href="tel:+61413230730"
+                className="flex items-center gap-4 group"
+              >
                 <div className="w-11 h-11 rounded-xl bg-[var(--color-orange)]/10 flex items-center justify-center text-[var(--color-orange)] group-hover:bg-[var(--color-orange)]/20 transition-colors">
-                  <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
+                  <svg
+                    className="w-5 h-5"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={1.5}
+                      d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"
+                    />
                   </svg>
                 </div>
                 <div>
-                  <div className="text-xs text-[var(--color-muted-2)]">Call for a quote</div>
+                  <div className="text-xs text-[var(--color-muted-2)]">
+                    Call for a quote
+                  </div>
                   <div className="text-white font-semibold group-hover:text-[var(--color-orange-bright)] transition-colors">
                     0413 230 730
                   </div>
                 </div>
               </a>
-              <a href="mailto:Afterbuiltsolutions@gmail.com" className="flex items-center gap-4 group">
+
+              <a
+                href="mailto:Afterbuiltsolutions@gmail.com"
+                className="flex items-center gap-4 group"
+              >
                 <div className="w-11 h-11 rounded-xl bg-[var(--color-orange)]/10 flex items-center justify-center text-[var(--color-orange)] group-hover:bg-[var(--color-orange)]/20 transition-colors">
-                  <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                  <svg
+                    className="w-5 h-5"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={1.5}
+                      d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
+                    />
                   </svg>
                 </div>
                 <div>
-                  <div className="text-xs text-[var(--color-muted-2)]">Email</div>
+                  <div className="text-xs text-[var(--color-muted-2)]">
+                    Email
+                  </div>
                   <div className="text-white font-semibold group-hover:text-[var(--color-orange-bright)] transition-colors">
                     Afterbuiltsolutions@gmail.com
                   </div>
                 </div>
               </a>
+
               <div className="flex items-center gap-4">
                 <div className="w-11 h-11 rounded-xl bg-[var(--color-orange)]/10 flex items-center justify-center text-[var(--color-orange)]">
-                  <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                  <svg
+                    className="w-5 h-5"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={1.5}
+                      d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"
+                    />
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={1.5}
+                      d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"
+                    />
                   </svg>
                 </div>
                 <div>
-                  <div className="text-xs text-[var(--color-muted-2)]">Showroom</div>
-                  <div className="text-white font-semibold">6 Kibble Place, Narellan 2567 NSW</div>
+                  <div className="text-xs text-[var(--color-muted-2)]">
+                    Showroom
+                  </div>
+                  <div className="text-white font-semibold">
+                    6 Kibble Place, Narellan 2567 NSW
+                  </div>
                 </div>
               </div>
             </div>
           </div>
 
-          {/* Get a Quote form */}
+          {/* Form */}
           <div className="bg-[var(--color-surface)] border border-[var(--color-line-soft)] rounded-2xl p-6 sm:p-8">
             <div className="mb-6">
-              <h3 className="text-lg font-semibold text-white">Get a free quote</h3>
+              <h3 className="text-lg font-semibold text-white">
+                Get a free quote
+              </h3>
               <p className="text-sm text-[var(--color-muted)] mt-1">
-                Fill in the details below and we&apos;ll respond within one business day.
+                Fill in the details below and we&apos;ll respond within one
+                business day.
               </p>
             </div>
 
             <form onSubmit={handleSubmit} className="space-y-5" noValidate>
               <div className="grid sm:grid-cols-2 gap-5">
                 <div>
-                  <label htmlFor="name" className="block text-sm font-medium text-[var(--color-muted)] mb-1.5">
+                  <label
+                    htmlFor="name"
+                    className="block text-sm font-medium text-[var(--color-muted)] mb-1.5"
+                  >
                     Full name *
                   </label>
                   <input
@@ -110,7 +200,10 @@ export default function Contact() {
                   />
                 </div>
                 <div>
-                  <label htmlFor="phone" className="block text-sm font-medium text-[var(--color-muted)] mb-1.5">
+                  <label
+                    htmlFor="phone"
+                    className="block text-sm font-medium text-[var(--color-muted)] mb-1.5"
+                  >
                     Phone *
                   </label>
                   <input
@@ -123,8 +216,12 @@ export default function Contact() {
                   />
                 </div>
               </div>
+
               <div>
-                <label htmlFor="email" className="block text-sm font-medium text-[var(--color-muted)] mb-1.5">
+                <label
+                  htmlFor="email"
+                  className="block text-sm font-medium text-[var(--color-muted)] mb-1.5"
+                >
                   Email *
                 </label>
                 <input
@@ -136,8 +233,12 @@ export default function Contact() {
                   placeholder="you@email.com"
                 />
               </div>
+
               <div>
-                <label htmlFor="service" className="block text-sm font-medium text-[var(--color-muted)] mb-1.5">
+                <label
+                  htmlFor="service"
+                  className="block text-sm font-medium text-[var(--color-muted)] mb-1.5"
+                >
                   Service required
                 </label>
                 <select
@@ -154,8 +255,12 @@ export default function Contact() {
                   <option value="other">Other / multiple</option>
                 </select>
               </div>
+
               <div>
-                <label htmlFor="suburb" className="block text-sm font-medium text-[var(--color-muted)] mb-1.5">
+                <label
+                  htmlFor="suburb"
+                  className="block text-sm font-medium text-[var(--color-muted)] mb-1.5"
+                >
                   Suburb / postcode
                 </label>
                 <input
@@ -165,8 +270,12 @@ export default function Contact() {
                   placeholder="e.g. Narellan 2567"
                 />
               </div>
+
               <div>
-                <label htmlFor="message" className="block text-sm font-medium text-[var(--color-muted)] mb-1.5">
+                <label
+                  htmlFor="message"
+                  className="block text-sm font-medium text-[var(--color-muted)] mb-1.5"
+                >
                   Project details *
                 </label>
                 <textarea
@@ -178,6 +287,7 @@ export default function Contact() {
                   placeholder="Describe the space, approximate size, preferred finishes and timeline…"
                 />
               </div>
+
               <button
                 type="submit"
                 disabled={status === "sending"}
@@ -185,30 +295,100 @@ export default function Contact() {
               >
                 {status === "sending" ? (
                   <>
-                    <svg className="animate-spin w-5 h-5" fill="none" viewBox="0 0 24 24">
-                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+                    <svg
+                      className="animate-spin w-5 h-5"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                    >
+                      <circle
+                        className="opacity-25"
+                        cx="12"
+                        cy="12"
+                        r="10"
+                        stroke="currentColor"
+                        strokeWidth="4"
+                      />
+                      <path
+                        className="opacity-75"
+                        fill="currentColor"
+                        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                      />
                     </svg>
                     Sending quote request…
                   </>
                 ) : (
                   <>
                     Get a free quote
-                    <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 5l7 7m0 0l-7 7m7-7H3" />
+                    <svg
+                      className="w-4 h-4"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M14 5l7 7m0 0l-7 7m7-7H3"
+                      />
                     </svg>
                   </>
                 )}
               </button>
+
+              {/* Dynamic success */}
               {status === "ok" && (
-                <p className="text-sm text-center text-green-400">
-                  Quote request sent — we&apos;ll be in touch within one business day.
-                </p>
+                <div className="mt-2 rounded-xl border border-green-500/25 bg-green-500/10 px-4 py-4 text-center">
+                  <div className="mx-auto mb-2 flex h-10 w-10 items-center justify-center rounded-full bg-green-500/20 text-green-400">
+                    <svg
+                      className="h-5 w-5"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                      strokeWidth={2.5}
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        d="M5 13l4 4L19 7"
+                      />
+                    </svg>
+                  </div>
+                  <p className="text-[15px] font-semibold text-green-300">
+                    Thanks
+                    {submittedName
+                      ? `, ${submittedName.split(" ")[0]}`
+                      : ""}
+                    !
+                  </p>
+                  <p className="mt-1 text-sm text-green-400/80 leading-relaxed">
+                    Your quote request is on its way. We&apos;ll review the
+                    details and get back to you within{" "}
+                    <strong className="text-green-300">
+                      one business day
+                    </strong>
+                    .
+                  </p>
+                  <p className="mt-2 text-xs text-green-500/70">
+                    A confirmation email has also been sent to your inbox.
+                  </p>
+                </div>
               )}
+
+              {/* Dynamic error */}
               {status === "error" && (
-                <p className="text-sm text-center text-red-400">
-                  Please fill in all required fields.
-                </p>
+                <div className="mt-2 rounded-xl border border-red-500/25 bg-red-500/10 px-4 py-3 text-center">
+                  <p className="text-sm text-red-300">{errorMsg}</p>
+                  <p className="mt-1 text-xs text-red-400/70">
+                    Or call us directly on{" "}
+                    <a
+                      href="tel:+61413230730"
+                      className="underline hover:text-red-300"
+                    >
+                      0413 230 730
+                    </a>
+                  </p>
+                </div>
               )}
             </form>
           </div>

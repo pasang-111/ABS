@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import Image from "next/image";
+import { useBanner } from "./BannerContext";
 
 const LINKS = [
   { href: "#services", id: "services", label: "Services" },
@@ -43,6 +44,7 @@ export default function Navbar() {
   const [scrolled, setScrolled] = useState(false);
   const [open, setOpen] = useState(false);
   const [active, setActive] = useState("");
+  const { bannerVisible } = useBanner();
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 20);
@@ -53,7 +55,14 @@ export default function Navbar() {
 
   // Scroll-spy: highlight current section
   useEffect(() => {
-    const sectionIds = ["services", "before-after", "gallery", "brochures", "process", "contact"];
+    const sectionIds = [
+      "services",
+      "before-after",
+      "gallery",
+      "brochures",
+      "process",
+      "contact",
+    ];
     const els = sectionIds
       .map((id) => document.getElementById(id))
       .filter(Boolean) as HTMLElement[];
@@ -78,13 +87,15 @@ export default function Navbar() {
   }, []);
 
   return (
-  <header
-  className={`fixed left-0 right-0 z-50 transition-all duration-500 ${
-    scrolled
-      ? "bg-gradient-to-r from-[#ea580c] via-[#f97316] to-[#fb923c] shadow-lg shadow-orange-900/30 py-2 top-10" // ← added top-10
-      : "bg-gradient-to-r from-[#c2410c]/95 via-[#ea580c]/95 to-[#f97316]/95 backdrop-blur-md py-3 top-10" // ← added top-10
-  }`}
->
+    <header
+      className={`fixed left-0 right-0 z-50 transition-all duration-500 ${
+        bannerVisible ? "top-10" : "top-0"
+      } ${
+        scrolled
+          ? "bg-gradient-to-r from-[#ea580c] via-[#f97316] to-[#fb923c] shadow-lg shadow-orange-900/30 py-2"
+          : "bg-gradient-to-r from-[#c2410c]/95 via-[#ea580c]/95 to-[#f97316]/95 backdrop-blur-md py-3"
+      }`}
+    >
       <div className="w-[min(100%-2rem,1200px)] mx-auto flex items-center justify-between">
         {/* White logo — ideal size */}
         <a href="#top" className="flex items-center shrink-0 group">
@@ -104,7 +115,9 @@ export default function Navbar() {
           <div className="relative group">
             <button
               className={`relative px-3.5 py-2 text-[13px] font-semibold transition-colors duration-200 flex items-center gap-1.5 ${
-                active === "services" ? "text-white" : "text-white/85 hover:text-white"
+                active === "services"
+                  ? "text-white"
+                  : "text-white/85 hover:text-white"
               }`}
             >
               Services
@@ -114,7 +127,12 @@ export default function Navbar() {
                 viewBox="0 0 24 24"
                 stroke="currentColor"
               >
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M19 9l-7 7-7-7" />
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2.5}
+                  d="M19 9l-7 7-7-7"
+                />
               </svg>
               {active === "services" && (
                 <span className="absolute bottom-0.5 left-3 right-3 h-0.5 bg-white rounded-full" />
@@ -142,7 +160,9 @@ export default function Navbar() {
                         <h4 className="text-[13px] font-semibold text-white group-hover/card:text-[var(--color-orange-bright)] transition-colors">
                           {item.title}
                         </h4>
-                        <p className="text-[11px] text-[var(--color-muted-2)] mt-0.5">{item.desc}</p>
+                        <p className="text-[11px] text-[var(--color-muted-2)] mt-0.5">
+                          {item.desc}
+                        </p>
                       </div>
                     </a>
                   ))}
@@ -156,8 +176,18 @@ export default function Navbar() {
                     className="text-[13px] font-semibold text-[var(--color-orange)] hover:text-[var(--color-orange-bright)] flex items-center gap-1 transition-colors"
                   >
                     Get a quote
-                    <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
+                    <svg
+                      className="w-3.5 h-3.5"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M17 8l4 4m0 0l-4 4m4-4H3"
+                      />
                     </svg>
                   </a>
                 </div>
@@ -170,7 +200,9 @@ export default function Navbar() {
               key={l.href}
               href={l.href}
               className={`relative px-3.5 py-2 text-[13px] font-semibold transition-colors duration-200 ${
-                active === l.id ? "text-white" : "text-white/85 hover:text-white"
+                active === l.id
+                  ? "text-white"
+                  : "text-white/85 hover:text-white"
               }`}
             >
               {l.label}
@@ -195,12 +227,32 @@ export default function Navbar() {
             aria-label="Menu"
           >
             {open ? (
-              <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+              <svg
+                className="w-6 h-6"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M6 18L18 6M6 6l12 12"
+                />
               </svg>
             ) : (
-              <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+              <svg
+                className="w-6 h-6"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M4 6h16M4 12h16M4 18h16"
+                />
               </svg>
             )}
           </button>

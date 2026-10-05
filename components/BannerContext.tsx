@@ -13,16 +13,19 @@ export function BannerProvider({ children }: { children: ReactNode }) {
   const [bannerVisible, setBannerVisible] = useState(false);
 
   useEffect(() => {
-    // Only run on client
-    const dismissed = localStorage.getItem("uc-banner-dismissed");
-    if (!dismissed) {
+    try {
+      const dismissed = localStorage.getItem("uc-banner-dismissed");
+      if (!dismissed) setBannerVisible(true);
+    } catch {
       setBannerVisible(true);
     }
   }, []);
 
   const closeBanner = () => {
     setBannerVisible(false);
-    localStorage.setItem("uc-banner-dismissed", "true");
+    try {
+      localStorage.setItem("uc-banner-dismissed", "true");
+    } catch {}
   };
 
   return (
@@ -34,8 +37,6 @@ export function BannerProvider({ children }: { children: ReactNode }) {
 
 export function useBanner() {
   const ctx = useContext(BannerContext);
-  if (!ctx) {
-    throw new Error("useBanner must be used inside BannerProvider");
-  }
+  if (!ctx) throw new Error("useBanner must be used inside BannerProvider");
   return ctx;
 }
