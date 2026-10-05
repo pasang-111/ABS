@@ -1,0 +1,139 @@
+@import "tailwindcss";
+@import url("https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&family=Instrument+Serif:ital@0;1&display=swap");
+
+@theme {
+  /* Grey + Orange primary system (with subtle brand heritage) */
+  --color-bg: #0c0f14;
+  --color-surface: #141a22;
+  --color-surface-2: #1a222d;
+  --color-surface-3: #222b38;
+  --color-orange: #f97316;
+  --color-orange-bright: #fb923c;
+  --color-orange-deep: #ea580c;
+  --color-gold: #eab308;
+  --color-gold-soft: #facc15;
+  --color-off: #f1f5f9;
+  --color-muted: #94a3b8;
+  --color-muted-2: #64748b;
+  --color-line: rgba(249, 115, 22, 0.12);
+  --color-line-soft: rgba(255, 255, 255, 0.06);
+
+  --font-display: "Instrument Serif", Georgia, serif;
+  --font-body: "DM Sans", ui-sans-serif, system-ui, sans-serif;
+}
+
+html { scroll-behavior: smooth; }
+
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  *, *::before, *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+  }
+}
+
+body {
+  margin: 0;
+  background: var(--color-bg);
+  color: var(--color-off);
+  font-family: var(--font-body);
+  -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
+}
+
+.font-display { font-family: var(--font-display); }
+
+/* Advanced grid helpers */
+.bento {
+  display: grid;
+  grid-template-columns: repeat(12, 1fr);
+  gap: 1rem;
+}
+
+/* Mega menu */
+.mega-panel {
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(10px) scale(0.98);
+  transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+  pointer-events: none;
+}
+.group:hover .mega-panel,
+.mega-panel.open {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0) scale(1);
+  pointer-events: auto;
+}
+
+/* Before/After slider */
+.ba-wrap { position: relative; overflow: hidden; user-select: none; touch-action: none; }
+.ba-after { position: absolute; inset: 0; clip-path: inset(0 50% 0 0); }
+.ba-handle {
+  position: absolute; top: 0; bottom: 0; left: 50%;
+  width: 3px; background: var(--color-orange);
+  transform: translateX(-50%); cursor: ew-resize; z-index: 20;
+}
+.ba-handle::before {
+  content: "";
+  position: absolute; top: 50%; left: 50%;
+  width: 42px; height: 42px;
+  background: var(--color-orange);
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  box-shadow: 0 4px 24px rgba(249, 115, 22, 0.55);
+  border: 3px solid white;
+}
+.ba-handle::after {
+  content: "⟷";
+  position: absolute; top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+  color: white; font-size: 16px; font-weight: 700; z-index: 1;
+}
+
+/* Stagger / reveal */
+.reveal { opacity: 0; transform: translateY(28px); transition: opacity 0.7s ease, transform 0.7s ease; }
+.reveal.visible { opacity: 1; transform: translateY(0); }
+.stagger > * { opacity: 0; transform: translateY(22px); }
+.stagger.visible > * { animation: fadeUp 0.65s ease forwards; }
+.stagger.visible > *:nth-child(1) { animation-delay: 0.05s; }
+.stagger.visible > *:nth-child(2) { animation-delay: 0.12s; }
+.stagger.visible > *:nth-child(3) { animation-delay: 0.19s; }
+.stagger.visible > *:nth-child(4) { animation-delay: 0.26s; }
+.stagger.visible > *:nth-child(5) { animation-delay: 0.33s; }
+.stagger.visible > *:nth-child(6) { animation-delay: 0.40s; }
+
+@keyframes fadeUp {
+  to { opacity: 1; transform: translateY(0); }
+}
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
+}
+@keyframes pulse-glow {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(249, 115, 22, 0.35); }
+  50% { box-shadow: 0 0 0 12px rgba(249, 115, 22, 0); }
+}
+
+.animate-float { animation: float 5.5s ease-in-out infinite; }
+.animate-pulse-glow { animation: pulse-glow 2.5s ease-in-out infinite; }
+
+/* Scrollbar */
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: #0c0f14; }
+::-webkit-scrollbar-thumb { background: rgba(249, 115, 22, 0.45); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: var(--color-orange); }
+
+::selection {
+  background: rgba(249, 115, 22, 0.35);
+  color: white;
+}
+
+/* Mobile menu */
+.mobile-drawer {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.mobile-drawer.open { max-height: 80vh; }
